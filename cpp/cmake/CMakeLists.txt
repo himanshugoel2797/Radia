@@ -8,7 +8,7 @@ if(UNIX)
     add_compile_options(-fPIC)
 else() # Windows
     #set(WINDOWS_EXPORT_ALL_SYMBOLS ON)
-    add_definitions(-DWIN32 -D_WINDOWS -D_USRDLL -D_CRT_SECURE_NO_WARNINGS -DNON_UNIX_STDIO -D__VC__)
+    add_definitions(-DWIN32 -D_WINDOWS -D_USRDLL -D_CRT_SECURE_NO_WARNINGS -DNON_UNIX_STDIO -D__VC__ -DALPHA__LIB__)
     set(CMAKE_EXE_LINKER_FLAGS ../src/lib/raddll.def)
 endif()
 
@@ -170,7 +170,7 @@ set(radia_clients_c_source_files
     ../src/clients/c/radclient.cpp
 )
 
-add_executable(radiaclient ${radia_clients_c_source_files})
+add_library(radiaclient ${radia_clients_c_source_files})
 
 target_link_libraries(radiaclient radia)
 
