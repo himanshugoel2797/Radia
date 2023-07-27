@@ -58,6 +58,12 @@ jobs:
           set -vxeuo pipefail
           conda install -y -c conda-forge mpi4py openmpi
 
+      - name: Install mpi4py for Windows systems with conda
+        if: runner.os == 'Windows' && matrix.mpi == 'on'
+        run: |
+          set -vxeuo pipefail
+          conda install -y -c conda-forge mpi4py msmpi
+
       - name: Build sdist and wheel and install *.whl
         run: |
           set -vxeuo pipefail
