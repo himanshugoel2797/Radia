@@ -134,10 +134,10 @@ add_library(radia STATIC
 )
 
 
-# Add definitions needed to build RADIA
+# Add definitions needed to build Radia
 target_compile_definitions(radia PUBLIC ${RADIA_DEFINITIONS})
 
-# Libraries in which RADIA lib depends
+# Libraries in which Radia lib depends
 target_link_libraries(radia core ${FFTW_DOUBLE_LIB} ${FFTW_FLOAT_LIB})
 
 if (UNIX)
