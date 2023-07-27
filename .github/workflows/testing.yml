@@ -6,13 +6,13 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.host-os }} / Python ${{ matrix.python-version }} / OpenMP ${{ matrix.openmp }}
+    name: ${{ matrix.host-os }} / Python ${{ matrix.python-version }} / MPI ${{ matrix.mpi }}
     runs-on: ${{ matrix.host-os }}
     strategy:
       matrix:
         host-os: ["ubuntu-latest", "macos-10.15", "windows-latest"]
         python-version: ["3.7", "3.8", "3.9"]
-        openmp: ["on", "off"]
+        mpi: ["on", "off"]
       fail-fast: false
 
     defaults:
@@ -22,10 +22,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set OpenMP mode
-        if: matrix.openmp == 'on'
+      - name: Set MPI mode
+        if: matrix.mpi == 'on'
         run: |
-          export MODE="omp"
+          export MODE="mpi"
           echo "MODE=${MODE}" >> $GITHUB_ENV
 
       - uses: conda-incubator/setup-miniconda@v2
@@ -52,14 +52,8 @@ jobs:
           set -vxeuo pipefail
           conda install -y cmake
 
-      - name: Install OpenMP for macOS with conda
-        if: runner.os == 'macOS' && matrix.openmp == 'on'
-        run: |
-          set -vxeuo pipefail
-          conda install -y -c conda-forge llvm-openmp
-
       - name: Install mpi4py for Unix systems with conda
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && matrix.mpi == 'on'
         run: |
           set -vxeuo pipefail
           conda install -y -c conda-forge mpi4py openmpi
