@@ -25,7 +25,7 @@ if(USE_MPI)
     # Setup OpenMP include dir for all targets
     include_directories(${MPI_CXX_INCLUDE_DIRS})
 else()
-    set(RADIA_DEFINITIONS -D__GCC__ -DFFTW_ENABLE_FLOAT -DNO_TIMER -DANSI_DECLARATORS -DTRILIBRARY -DLINUX -D_GM_WITHOUT_BASE)
+    set(RADIA_DEFINITIONS -D__GCC__ -DFFTW_ENABLE_FLOAT -DNO_TIMER -DANSI_DECLARATORS -DTRILIBRARY -D_GM_WITHOUT_BASE)
 endif()
 
 # Setup definitions for all targets
