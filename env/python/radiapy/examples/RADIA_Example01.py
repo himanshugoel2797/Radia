@@ -5,7 +5,13 @@
 #############################################################################
 
 from __future__ import print_function #Python 2.7 compatibility
-import radia as rad
+try:
+    import sys
+    sys.path.append('../')
+    import radia as rad
+except:
+    import radiapy.radia as rad
+
 print('RADIA Library Version:', rad.UtiVer(), '\n')
 
 print('RADIA Python Example #1:')

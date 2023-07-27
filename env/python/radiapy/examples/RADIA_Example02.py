@@ -6,8 +6,14 @@
 #############################################################################
 
 from __future__ import print_function #Py 2.*/3.* compatibility
-import radia as rad
-from uti_plot import *
+try:
+    import sys
+    sys.path.append('../')
+    import radia as rad
+    from uti_plot import *
+except:
+    import radiapy.radia as rad
+    from radiapy.uti_plot import *
 
 print('RADIA Python Example #2:')
 print('This example consists in the creation of a set of racetrack and circular coils,')

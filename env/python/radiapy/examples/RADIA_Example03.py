@@ -5,8 +5,14 @@
 #############################################################################
 
 from __future__ import absolute_import, division, print_function #Py 2.*/3.* compatibility
-import radia as rad
-from uti_plot import *
+try:
+    import sys
+    sys.path.append('../')
+    import radia as rad
+    from uti_plot import *
+except:
+    import radiapy.radia as rad
+    from radiapy.uti_plot import *
 import time
 
 print('RADIA Python Example #3:')
