@@ -1,7 +1,7 @@
 # OS Dependent configurations
 if(UNIX)
     if (APPLE)  # MacOS
-        add_definitions(-D__MAC__)
+        add_definitions(-D__MAC__ -D__GCC__)
         else() # Linux
         add_definitions(-DLINUX -D__GCC__)
         endif()
