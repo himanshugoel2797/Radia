@@ -2,16 +2,18 @@
 if(UNIX)
     if (APPLE)  # MacOS
         add_definitions(-D__MAC__)
-    else() # Linux
+        else() # Linux
         add_definitions(-DLINUX -D__GCC__)
-    endif()
-    add_compile_options(-fPIC)
+        endif()
+    add_compile_options(-fPIC -Wno-c++11-narrowing)
 else() # Windows
     set(WINDOWS_EXPORT_ALL_SYMBOLS ON)
     add_definitions(-DWIN32 -D_WINDOWS -D_USRDLL -D_CRT_SECURE_NO_WARNINGS -DNON_UNIX_STDIO -D__VC__ -DALPHA__LIB__)
     #set(CMAKE_EXE_LINKER_FLAGS ../src/lib/raddll.def)
 endif()
 
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
 
 message(STATUS "Compiler is: ${CMAKE_C_COMPILER} | ${CMAKE_CXX_COMPILER}")
 
