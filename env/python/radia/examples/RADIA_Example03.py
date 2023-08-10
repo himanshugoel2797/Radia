@@ -11,8 +11,8 @@ try:
     import radia as rad
     from uti_plot import *
 except:
-    import radiapy.radia as rad
-    from radiapy.uti_plot import *
+    import radia.radia as rad
+    from radia.uti_plot import *
 import time
 
 print('RADIA Python Example #3:')

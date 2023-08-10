@@ -82,7 +82,7 @@ with open(os.path.join(base_dir, 'requirements.txt')) as requirements_file:
     requirements = [line for line in requirements_file.read().splitlines()
                     if not line.startswith('#')]
 
-setup(name='radiapy',
+setup(name='radia',
       version='1.0',
       description='This is Radia for Python',
       author='O. Chubar et al.',
@@ -94,6 +94,6 @@ This is Radia for Python.
       packages=find_packages(exclude=['docs', 'tests']),
       install_requires=requirements,
       zip_safe=False,
-      ext_modules=[CMakeExtension('radiapy', original_src_dir, 'radiapy')],
+      ext_modules=[CMakeExtension('radia', original_src_dir, 'radia')],
       cmdclass=dict(build_ext=CMakeBuild),
       )

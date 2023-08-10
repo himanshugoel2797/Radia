@@ -1,10 +1,11 @@
 recursive-exclude * __pycache__
-recursive-exclude * *.py[co]
+recursive-exclude * *.py[cod]
 
 recursive-include docs *.rst conf.py Makefile make.bat
 
-include radiapy/_version.py
-include radiapy/*.so
+include radia/radia.pyd
+include radia/_version.py
+include radia/*.so
 
 # If including data files in the package, add them like:
 # include path/to/data_file

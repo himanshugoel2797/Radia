@@ -10,7 +10,7 @@ try:
     sys.path.append('../')
     import radia as rad
 except:
-    import radiapy.radia as rad
+    import radia.radia as rad
 
 print('RADIA Library Version:', rad.UtiVer(), '\n')
 
