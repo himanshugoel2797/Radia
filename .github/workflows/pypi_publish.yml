@@ -78,6 +78,7 @@ jobs:
           pip install -v dist/*.whl
 
       - name: Publish wheels to GitHub artifacts
+        if: matrix.mpi == 'off'
         uses: actions/upload-artifact@v2
         with:
           name: wheels

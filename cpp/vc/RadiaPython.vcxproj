@@ -328,7 +328,7 @@
       <IgnoreSpecificDefaultLibraries>glut32</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>copy radia.pyd "$(SolutionDir)..\..\env\radia_python\"</Command>
+      <Command>copy radia.pyd "$(SolutionDir)..\..\env\python\radia\"</Command>
     </PostBuildEvent>
     <Bscmake>
       <OutputFile>.\x64/$(ProjectName)/Release_Py3_6/radia.bsc</OutputFile>
@@ -370,7 +370,7 @@
       <IgnoreSpecificDefaultLibraries>glut32</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>copy radia.pyd "$(SolutionDir)..\..\env\radia_python\"</Command>
+      <Command>copy radia.pyd "$(SolutionDir)..\..\env\python\radia\"</Command>
     </PostBuildEvent>
     <Bscmake>
       <OutputFile>.\x64/$(ProjectName)/Release_Py3_7/radia.bsc</OutputFile>
@@ -412,7 +412,7 @@
       <IgnoreSpecificDefaultLibraries>glut32</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>copy radia.pyd "$(SolutionDir)..\..\env\radia_python\"</Command>
+      <Command>copy radia.pyd "$(SolutionDir)..\..\env\python\radia\"</Command>
     </PostBuildEvent>
     <Bscmake>
       <OutputFile>.\x64/$(ProjectName)/Release_Py3_8/radia.bsc</OutputFile>
@@ -454,7 +454,7 @@
       <IgnoreSpecificDefaultLibraries>glut32</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>copy radia.pyd "$(SolutionDir)..\..\env\radia_python\"</Command>
+      <Command>copy radia.pyd "$(SolutionDir)..\..\env\python\radia\"</Command>
     </PostBuildEvent>
     <Bscmake>
       <OutputFile>.\x64/$(ProjectName)/Release_Py2_7/radia.bsc</OutputFile>
@@ -513,7 +513,7 @@
       <OutputFile>.\x64/$(ProjectName)/Debug_Py3_6/radia.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy radia.pyd "$(SolutionDir)..\..\env\radia_python\"</Command>
+      <Command>copy radia.pyd "$(SolutionDir)..\..\env\python\radia\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Py3_8|x64'">
@@ -551,7 +551,7 @@
       <OutputFile>.\x64/$(ProjectName)/Debug_Py3_8/radia.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy radia.pyd "$(SolutionDir)..\..\env\radia_python\"</Command>
+      <Command>copy radia.pyd "$(SolutionDir)..\..\env\python\radia\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Py2_7|x64'">
@@ -589,7 +589,7 @@
       <OutputFile>.\x64/$(ProjectName)/Debug_Py2_7/radia.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy radia.pyd "$(SolutionDir)..\..\env\radia_python\"</Command>
+      <Command>copy radia.pyd "$(SolutionDir)..\..\env\python\radia\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Py3_6|Win32'">

@@ -223,7 +223,7 @@ if(WIN32)
 endif()
 
 add_custom_command(TARGET radiapy POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:radiapy> ${CMAKE_SOURCE_DIR}/env/python/radiapy/
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:radiapy> ${CMAKE_SOURCE_DIR}/env/python/radia/
 )
 
 #install(TARGETS radiapy LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

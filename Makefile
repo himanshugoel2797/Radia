@@ -17,7 +17,7 @@ fftw_version = fftw-2.1.5
 fftw_dir = $(fftw_version)
 fftw_file = $(fftw_version).tar.gz
 log_fftw = /dev/null
-examples_dir = $(env_dir)/radia_python
+examples_dir = $(env_dir)/python/radia/examples
 export MODE ?= 0
 timeout=20
 
