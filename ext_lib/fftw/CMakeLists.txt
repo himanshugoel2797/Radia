@@ -30,6 +30,8 @@ else()
             # This cp line is important. FFTW 2 must be build inplace otherwise
             # the make part will generate invalid library...
             COMMAND cp -r ${CMAKE_CURRENT_BINARY_DIR}/src/fftw_external/. .
+            COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/config.sub .
+            COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/config.guess .
             COMMAND ./configure --enable-float --with-pic
             COMMAND cd fftw && make -j8 && cd ..
             COMMAND mkdir -p ${STAGED_INSTALL_PREFIX}/lib
