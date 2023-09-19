@@ -128,7 +128,7 @@ set(radia_lib_source_files
     ../src/lib/radentry.h
 )
 
-add_library(radia STATIC
+add_library(radia_base STATIC
     ${radia_lib_source_files}
     $<TARGET_OBJECTS:core>
     $<TARGET_OBJECTS:genmath>
@@ -138,33 +138,33 @@ add_library(radia STATIC
 
 
 # Add definitions needed to build Radia
-target_compile_definitions(radia PUBLIC ${RADIA_DEFINITIONS})
+target_compile_definitions(radia_base PUBLIC ${RADIA_DEFINITIONS})
 
-# Libraries in which Radia lib depends
-target_link_libraries(radia core ${FFTW_DOUBLE_LIB} ${FFTW_FLOAT_LIB})
+# Libraries in which radia_base lib depends
+target_link_libraries(radia_base core ${FFTW_DOUBLE_LIB} ${FFTW_FLOAT_LIB})
 
 if (UNIX)
     # Math library is only needed by unix. When using Windows, VS does it for you.
-    target_link_libraries(radia m)
+    target_link_libraries(radia_base m)
 endif()
 
-target_include_directories(radia PUBLIC
+target_include_directories(radia_base PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/lib>
 )
-target_include_directories(radia PUBLIC
+target_include_directories(radia_base PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/core>
 )
-target_include_directories(radia PUBLIC
+target_include_directories(radia_base PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ext/auxparse>
 )
-target_include_directories(radia PUBLIC
+target_include_directories(radia_base PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ext/triangle>
 )
-target_include_directories(radia PUBLIC
+target_include_directories(radia_base PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/ext/genmath>
 )
 
-install(TARGETS radia LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS radia_base LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # clients
 # c
@@ -174,7 +174,7 @@ set(radia_clients_c_source_files
 
 add_library(radiaclient ${radia_clients_c_source_files})
 
-target_link_libraries(radiaclient radia)
+target_link_libraries(radiaclient radia_base)
 
 target_include_directories(radiaclient PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src/clients/c/>
@@ -205,7 +205,7 @@ set_target_properties(radiapy PROPERTIES PREFIX "")
 
 if (UNIX)
     # Math library is only needed by unix. When using Windows, VS does it for you.
-    target_link_libraries(radiapy m ${FFTW_DOUBLE_LIB} ${FFTW_FLOAT_LIB} radia)
+    target_link_libraries(radiapy m ${FFTW_DOUBLE_LIB} ${FFTW_FLOAT_LIB} radia_base)
 
     set_target_properties(radiapy PROPERTIES SUFFIX ".so")
 
@@ -220,9 +220,11 @@ if(APPLE)
 endif()
 
 if(WIN32)
-  target_link_libraries(radiapy radia ${PYTHON_LIBRARIES})
+  target_link_libraries(radiapy radia_base ${PYTHON_LIBRARIES})
   set_target_properties(radiapy PROPERTIES SUFFIX ".pyd")
 endif()
+
+set_target_properties(radiapy PROPERTIES OUTPUT_NAME "radia")
 
 add_custom_command(TARGET radiapy POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:radiapy> ${CMAKE_SOURCE_DIR}/env/python/radia/
