@@ -31,7 +31,7 @@ if 'MODE' in os.environ:
             'library_dirs': [os.path.abspath('../gcc'), os.path.abspath('../../ext_lib'), os.path.abspath('/usr/lib/openmpi/lib')]})
     elif sMode == 'mpi_nersc': #for compilation with MPICH, tested on NERSC cluster
         ext_kwargs.update({
-            'libraries': ['radia', 'm', 'fftw', 'mpichcxx_intel', 'dl'],
+            'libraries': ['radia', 'm', 'fftw', 'mpich', 'dl'],
             'library_dirs': [os.path.abspath('../gcc'), os.path.abspath('../../ext_lib'), os.path.abspath(os.getenv('MPICH_DIR') + '/lib')]})
     elif sMode == '0':
         pass

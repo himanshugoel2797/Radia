@@ -489,6 +489,8 @@ int radTInteraction::CountRelaxElemsWithSym()
 }
 
 //-------------------------------------------------------------------------
+#include <chrono>
+#include <thread>
 
 int radTInteraction::SetupInteractMatrix() //OC26122019
 //void radTInteraction::SetupInteractMatrix()
@@ -621,6 +623,7 @@ int radTInteraction::SetupInteractMatrix() //OC26122019
 				//nPacketsTot = (int)(nTotMainElem/nProc_mi_1 + 1.e-14);
 				//if(((long long)nPacketsTot)*((long long)nProc_mi_1) < nTotMainElem) nPacketsTot++;
 
+				printf("MPI Mode 0\r\n");
 				nPacketsTot = AmOfMainElem; //OC30122019
 				nMaxMatrElemInPacket = AmOfMainElem;
 			}
@@ -646,6 +649,7 @@ int radTInteraction::SetupInteractMatrix() //OC26122019
 			}
 			else
 			{//required for master process
+				printf("MPI Mode 1\r\n");
 				nPacketsTot = nProc_mi_1; //required for master process
 				nMaxMatrElemInPacket = nElemPerProc + nExtraLast;
 			}
@@ -665,7 +669,10 @@ int radTInteraction::SetupInteractMatrix() //OC26122019
 			float *arBufElem=0;
 			if(nBufElem > 0)
 			{
-				arBufElem = new float[nBufElem*9 + 8]; //the first 8 float values encode long long iStart, iEnd, all other values - elements of interaction matrix
+				const int nAsyncSendBuf = 8; //HG04102023 Buffer MPI sends asynchronously
+				MPI_Request *arMPI_Request = new MPI_Request[nAsyncSendBuf];
+				for (int i = 0; i < nAsyncSendBuf; i++) arMPI_Request[i] = MPI_REQUEST_NULL;
+				arBufElem = new float[nAsyncSendBuf*(nBufElem*9 + 8)]; //the first 8 float values encode long long iStart, iEnd, all other values - elements of interaction matrix
 				if(arBufElem == 0) { Send.ErrorMessage("Radia::Error900"); return 0;}
 
 				//DEBUG
@@ -674,13 +681,30 @@ int radTInteraction::SetupInteractMatrix() //OC26122019
 				//std::cout.flush(); //DEBUG
 				//END DEBUG
 
+				//Sleep for a random amount of time to avoid all processes sending at the same time
+				//srand(time(NULL));
+				//int sleepTime = rand() % 1000;
+				//std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+				//Build filename
+				char sBuf[50];
+				sprintf(sBuf, "128_async_send/%d.txt", m_rankMPI);
+				FILE *fd = fopen(sBuf, "a");
+
 				for(ii=0; ii<nPackets; ii++)
 				{
+					//Start performance timing
+					std::chrono::high_resolution_clock::time_point t0 = std::chrono::high_resolution_clock::now();
+
 					pair<long long, long long> &pairStartEnd = vPacketElemStartEnd[ii];
 					long long iStart = pairStartEnd.first;
 					long long iEnd = pairStartEnd.second;
 
-					float *t_arBufElem = arBufElem; //the first 8 float values encode long long iStart, iEnd
+
+					//float *t_arBufElem0 = arBufElem; //the first 8 float values encode long long iStart, iEnd
+					if (arMPI_Request[ii % nAsyncSendBuf] != MPI_REQUEST_NULL)
+						MPI_Wait(&arMPI_Request[ii % nAsyncSendBuf], MPI_STATUS_IGNORE);
+					float *t_arBufElem0 = arBufElem + (nBufElem*9 + 8) * (ii % nAsyncSendBuf); //the first 8 float values encode long long iStart, iEnd //HG04102023
+					float *t_arBufElem = t_arBufElem0;
 					LongLongToFloatAr(iStart, t_arBufElem); t_arBufElem += 4;
 					LongLongToFloatAr(iEnd, t_arBufElem); t_arBufElem += 4;
 
@@ -751,13 +775,31 @@ int radTInteraction::SetupInteractMatrix() //OC26122019
 						EmptyTransPtrVect();
 					}
 					//Send Interact. Matr. elem. data to master:
-					long long nVal = t_arBufElem - arBufElem;
+					long long nVal = t_arBufElem - t_arBufElem0;
 
-					if(MPI_Send(arBufElem, (int)nVal, MPI_FLOAT, 0, 0, MPI_COMM_WORLD) != MPI_SUCCESS) { Send.ErrorMessage("Radia::Error601"); if(arBufElem != 0) delete[] arBufElem; return 0;}
+					//End timing of calculation, start timing of sending
+					std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+
+					//if(MPI_Send(arBufElem, (int)nVal, MPI_FLOAT, 0, 0, MPI_COMM_WORLD) != MPI_SUCCESS) { Send.ErrorMessage("Radia::Error601"); if(arBufElem != 0) delete[] arBufElem; return 0;}
+					//HG04102023 Send asynchronously
+					if(MPI_Isend(t_arBufElem0, (int)nVal, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, &arMPI_Request[ii % nAsyncSendBuf]) != MPI_SUCCESS) { Send.ErrorMessage("Radia::Error601"); if(arBufElem != 0) delete[] arBufElem; return 0;}
+
+					//End timing of sending
+					std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+
+					//Print timing results
+					std::chrono::duration<double> time_span0 = std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
+					std::chrono::duration<double> time_span1 = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+					fprintf(fd, "rank=%d iStart=%lld iEnd=%lld nVal=%lld time_calc=%g time_send=%g\n", m_rankMPI, iStart, iEnd, nVal, time_span0.count(), time_span1.count());
+					fflush(fd);
+
+					//std::cout << "rank=" << m_rankMPI << " iStart=" << iStart << " iEnd=" << iEnd << " nVal=" << nVal << " time_calc=" << time_span0.count() << "s time_send=" << time_span1.count() << "s"; //DEBUG
+					//std::cout.flush(); //DEBUG
 
 					//std::cout << "Sending done by rank=" << rankMPI << " nVal=" << nVal; //DEBUG
 					//std::cout.flush(); //DEBUG
 				}
+				fclose(fd);
 				if(arBufElem != 0) delete[] arBufElem;
 
 				//DEBUG
@@ -779,11 +821,21 @@ int radTInteraction::SetupInteractMatrix() //OC26122019
 
 			//std::cout << "rank=" << rankMPI << " nPacketsTot=" << nPacketsTot << "\n"; //DEBUG
 			//std::cout.flush(); //DEBUG
+			//Build filename
+			char sBuf[50];
+			sprintf(sBuf, "128_async_send/%d.txt", m_rankMPI);
+			FILE *fp = fopen( sBuf, "a");
 
 			for(int i=0; i<nPacketsTot; i++)
 			{
+				//Start performance timing
+				std::chrono::high_resolution_clock::time_point t0 = std::chrono::high_resolution_clock::now();
+
 				if(MPI_Recv(arBufElemRecv, (int)nMaxValInPacket, MPI_FLOAT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &statusMPI) != MPI_SUCCESS) { Send.ErrorMessage("Radia::Error601"); delete[] arBufElemRecv; return 0;}
 				if(MPI_Get_count(&statusMPI, MPI_FLOAT, &trueNumValInPacket) != MPI_SUCCESS) { Send.ErrorMessage("Radia::Error601"); delete[] arBufElemRecv; return 0;}
+
+				//Finish receive profiling and start processing profiling
+				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
 				if(trueNumValInPacket < 8) { Send.ErrorMessage("Radia::Error601"); delete[] arBufElemRecv; return 0;}
 
@@ -837,9 +889,20 @@ int radTInteraction::SetupInteractMatrix() //OC26122019
 						//std::cout.flush(); //DEBUG
 					}
 				}
+
+				//Finish profiling
+				std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+
+				//Print results to file m_rankMPI.txt
+				std::chrono::duration<double> time_span0 = std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
+				std::chrono::duration<double> time_span1 = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+				fprintf(fp, "rank=%d iStart=%lld iEnd=%lld trueNumValInPacket=%d time_recv=%g time_proc=%g\n", m_rankMPI, iStart, iEnd, trueNumValInPacket, time_span0.count(), time_span1.count());
+				fflush(fp);
+
 				//std::cout << "Packet number " << i << " received by rank=" << rankMPI << "\n"; //DEBUG
 				//std::cout.flush(); //DEBUG
 			}
+			fclose(fp);
 			delete[] arBufElemRecv;
 		}
 		//To consider synchronization:
